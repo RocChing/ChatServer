@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatClient", "ChatClient\Ch
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BeetleX", "BeetleX\BeetleX.csproj", "{8A278AEC-BC34-4702-8B1A-137753CD11CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatModel", "ChatModel\ChatModel.csproj", "{D111E720-97A8-4FA3-9657-7BE3E8087D9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatModel", "ChatModel\ChatModel.csproj", "{D111E720-97A8-4FA3-9657-7BE3E8087D9D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatRepository", "ChatRepository\ChatRepository.csproj", "{68DBAB6D-3F76-4152-ACEA-7B1F822A299E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,14 @@ Global
 		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Release_Ubuntu|Any CPU.Build.0 = Release|Any CPU
 		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68DBAB6D-3F76-4152-ACEA-7B1F822A299E}.Debug_Ubuntu|Any CPU.ActiveCfg = Debug|Any CPU
+		{68DBAB6D-3F76-4152-ACEA-7B1F822A299E}.Debug_Ubuntu|Any CPU.Build.0 = Debug|Any CPU
+		{68DBAB6D-3F76-4152-ACEA-7B1F822A299E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68DBAB6D-3F76-4152-ACEA-7B1F822A299E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68DBAB6D-3F76-4152-ACEA-7B1F822A299E}.Release_Ubuntu|Any CPU.ActiveCfg = Release|Any CPU
+		{68DBAB6D-3F76-4152-ACEA-7B1F822A299E}.Release_Ubuntu|Any CPU.Build.0 = Release|Any CPU
+		{68DBAB6D-3F76-4152-ACEA-7B1F822A299E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68DBAB6D-3F76-4152-ACEA-7B1F822A299E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

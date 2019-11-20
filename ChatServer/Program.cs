@@ -2,10 +2,13 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.IO;
 
 using BeetleX;
+using ChatRepository;
 
 namespace ChatServer
 {
@@ -41,6 +44,12 @@ namespace ChatServer
                {
                    services.Configure<ServerConfig>(context.Configuration.GetSection(nameof(ServerConfig)));
                    services.AddHostedService<DefaultHostedService>();
+
+                   services.AddDbContext<ChatDbContext>(opt =>
+                   {
+                       string connectString = context.Configuration.GetConnectionString("ChatDb");
+                       opt.UseSqlite(connectString);
+                   });
 
                    services.AddSingleton(new ServerOptions());
                    services.AddScoped<IServerHandler, ChatTcpServer>();

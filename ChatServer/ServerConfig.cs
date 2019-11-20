@@ -7,5 +7,7 @@ namespace ChatServer
     public  class ServerConfig
     {
         public int Port { get; set; }
+
+        public string ValidString { get; set; }
     }
 }

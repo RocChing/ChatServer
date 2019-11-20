@@ -12,46 +12,45 @@ namespace ChatModel.Input
 
         public object Data { get; set; }
 
+        public string Token { get; set; }
+
         public MsgInfo() { }
 
-        public MsgInfo(CmdType type, object data)
+        public MsgInfo(string validString, CmdType type, object data)
         {
             Type = type;
             Data = data;
+            SetToken(validString);
         }
 
         public T As<T>()
         {
             if (Data is JsonElement ele)
             {
-                Console.WriteLine(ele.GetRawText());
                 string rowText = ele.GetRawText();
                 return JsonSerializer.Deserialize<T>(rowText);
-                //var properties = type.GetProperties();
-                //T data = Activator.CreateInstance<T>();
-                //foreach (PropertyInfo p in properties)
-                //{
-                //    object value = null;
-                //    switch (p.PropertyType.Name)
-                //    {
-                //        case "Int16":
-                //            value = ele.GetInt16();
-                //            break;
-                //        case "Int32":
-                //            value = ele.GetInt32();
-                //            break;
-                //        case "Int64":
-                //            value = ele.GetInt64();
-                //            break;
-                //        case "string":
-                //            value = ele.GetString();
-                //            break;
-                //    }
-                //    p.SetValue(data, value);
-                //}
-                //return data;
             }
             return default;
+        }
+
+        public bool IsValid(string validString)
+        {
+            string json = string.Empty;
+            if (Data is JsonElement ele)
+            {
+                json = ele.GetRawText();
+            }
+            string input = $"{validString}-{json}";
+            string md5String = Util.StringUtil.GetMd5String(input);
+            return md5String.Equals(Token, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void SetToken(string validString)
+        {
+            string json = JsonSerializer.Serialize(Data);
+            string input = $"{validString}-{json}";
+            string md5String = Util.StringUtil.GetMd5String(input);
+            Token = md5String;
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 using ChatModel;
 using BeetleX;
+using BeetleX.EventArgs;
 
 namespace ChatServer
 {
@@ -15,10 +16,12 @@ namespace ChatServer
     {
         private readonly ServerConfig serverConfig;
         private readonly ServerOptions serverOptions;
-        public DefaultHostedService(IOptions<ServerConfig> options, ServerOptions serverOptions)
+        private readonly IServerHandler  serverHandler;
+        public DefaultHostedService(IOptions<ServerConfig> options, ServerOptions serverOptions, IServerHandler  serverHandler)
         {
             this.serverConfig = options.Value;
             this.serverOptions = serverOptions;
+            this.serverHandler = serverHandler;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -38,9 +41,9 @@ namespace ChatServer
         private void StartChatServer()
         {
             serverOptions.Port = serverConfig.Port;
-            serverOptions.LogLevel = BeetleX.EventArgs.LogType.Info;
+            serverOptions.LogLevel = LogType.Info;
 
-            IServer server = SocketFactory.CreateTcpServer<ChatTcpServer>(serverOptions);
+            IServer server = SocketFactory.CreateTcpServer(serverHandler, null, serverOptions);
             server.Open();
 
             Console.WriteLine(server);

@@ -13,6 +13,9 @@ namespace ChatServer
     {
         static void Main(string[] args)
         {
+            //Console.WriteLine(Guid.NewGuid().ToString("N"));
+            //Console.ReadLine();
+            //return;
             StartServer();
         }
 
@@ -40,7 +43,7 @@ namespace ChatServer
                    services.AddHostedService<DefaultHostedService>();
 
                    services.AddSingleton(new ServerOptions());
-                   
+                   services.AddScoped<IServerHandler, ChatTcpServer>();
                })
                .Build();
 

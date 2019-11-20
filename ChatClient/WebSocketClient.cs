@@ -12,7 +12,6 @@ namespace ChatClient
     {
         private AsyncTcpClient client;
 
-        private readonly string url = "ws://localhost:8800/";
         private readonly string host = "localhost";
         public WebSocketClient()
         {
@@ -25,16 +24,12 @@ namespace ChatClient
             client.DataReceive = (o, args) =>
             {
                 string line = args.Stream.ToPipeStream().ReadLine();
+                line = ChatModel.Util.StringUtil.GetGBString(line);
                 Console.WriteLine(line);
             };
             client.Connected = c =>
             {
                 Console.WriteLine("连接到服务器: " + c.IsConnected);
-            };
-            client.PacketReceive = (c, msg) =>
-            {
-                Console.WriteLine("PacketReceive");
-                Console.WriteLine(msg.GetType());
             };
         }
 
@@ -43,15 +38,12 @@ namespace ChatClient
             client.Connect();
             client.Stream.ToPipeStream().WriteLine(msg);
             client.Stream.Flush();
-            //client.Send();
         }
 
         public void Send<T>(T data)
         {
             string json = JsonSerializer.Serialize(data);
             Send(json);
-            //client.Connect();
-            //client.Send(data);
         }
 
         public void Send(object data)

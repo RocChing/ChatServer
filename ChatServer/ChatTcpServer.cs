@@ -5,11 +5,18 @@ using BeetleX;
 using BeetleX.EventArgs;
 using ChatModel.Input;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 
 namespace ChatServer
 {
     public class ChatTcpServer : ServerHandlerBase
     {
+        private ServerConfig serverConfig;
+        public ChatTcpServer(IOptions<ServerConfig> options)
+        {
+            serverConfig = options.Value;
+        }
+
         public override void Connected(IServer server, ConnectedEventArgs e)
         {
             Console.WriteLine($"有客户端连接ID:{e.Session.ID}");
@@ -23,6 +30,11 @@ namespace ChatServer
             try
             {
                 info = JsonSerializer.Deserialize<MsgInfo>(json);
+                if (!info.IsValid(serverConfig.ValidString))
+                {
+                    SendError(e, "参数错误-Token");
+                    return;
+                }
                 switch (info.Type)
                 {
                     case CmdType.Login:
@@ -54,7 +66,7 @@ namespace ChatServer
             {
                 if ("admin".Equals(input.Name, StringComparison.OrdinalIgnoreCase) && "1".Equals(input.Password))
                 {
-                    Send(e, new MsgInfo(CmdType.Login, "登录成功"));
+                    Send(e, new MsgInfo(serverConfig.ValidString, CmdType.Login, "登录成功"));
                 }
             }
         }
@@ -88,7 +100,7 @@ namespace ChatServer
 
         private void SendError(SessionReceiveEventArgs e, string msg)
         {
-            MsgInfo info = new MsgInfo(CmdType.Error, msg);
+            MsgInfo info = new MsgInfo(serverConfig.ValidString, CmdType.Error, msg);
             e.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info));
             e.Stream.Flush();
         }
@@ -106,7 +118,7 @@ namespace ChatServer
 
         private void SendError(ISession session, string msg)
         {
-            MsgInfo info = new MsgInfo(CmdType.Error, msg);
+            MsgInfo info = new MsgInfo(serverConfig.ValidString, CmdType.Error, msg);
             session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info));
             session.Stream.Flush();
         }

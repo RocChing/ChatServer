@@ -51,6 +51,8 @@ namespace ChatServer
                        opt.UseSqlite(connectString);
                    });
 
+                   services.AddScoped<IUserRepository, UserRepository>();
+
                    services.AddSingleton(new ServerOptions());
                    services.AddScoped<IServerHandler, ChatTcpServer>();
                })

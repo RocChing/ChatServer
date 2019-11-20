@@ -24,10 +24,15 @@ namespace ChatModel.Entity
 
         public string Avatar { get; set; }
 
-        public bool Enabled { get; set; }
+        public int Enabled { get; set; }
 
         public DateTime CreateTime { get; set; }
 
         public DateTime UpdateTime { get; set; }
+
+        public User()
+        {
+            Enabled = 1;
+        }
     }
 }

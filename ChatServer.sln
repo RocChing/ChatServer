@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29409.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatServer", "ChatServer\ChatServer.csproj", "{E54B9013-2052-4837-A6F3-D6C75EC0C809}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatClient", "ChatClient\ChatClient.csproj", "{265FB1F2-1B4B-4E48-9038-534740AE100C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BeetleX", "BeetleX\BeetleX.csproj", "{8A278AEC-BC34-4702-8B1A-137753CD11CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatModel", "ChatModel\ChatModel.csproj", "{D111E720-97A8-4FA3-9657-7BE3E8087D9D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug_Ubuntu|Any CPU = Debug_Ubuntu|Any CPU
+		Debug|Any CPU = Debug|Any CPU
+		Release_Ubuntu|Any CPU = Release_Ubuntu|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E54B9013-2052-4837-A6F3-D6C75EC0C809}.Debug_Ubuntu|Any CPU.ActiveCfg = Debug|Any CPU
+		{E54B9013-2052-4837-A6F3-D6C75EC0C809}.Debug_Ubuntu|Any CPU.Build.0 = Debug|Any CPU
+		{E54B9013-2052-4837-A6F3-D6C75EC0C809}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E54B9013-2052-4837-A6F3-D6C75EC0C809}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E54B9013-2052-4837-A6F3-D6C75EC0C809}.Release_Ubuntu|Any CPU.ActiveCfg = Release|Any CPU
+		{E54B9013-2052-4837-A6F3-D6C75EC0C809}.Release_Ubuntu|Any CPU.Build.0 = Release|Any CPU
+		{E54B9013-2052-4837-A6F3-D6C75EC0C809}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E54B9013-2052-4837-A6F3-D6C75EC0C809}.Release|Any CPU.Build.0 = Release|Any CPU
+		{265FB1F2-1B4B-4E48-9038-534740AE100C}.Debug_Ubuntu|Any CPU.ActiveCfg = Debug|Any CPU
+		{265FB1F2-1B4B-4E48-9038-534740AE100C}.Debug_Ubuntu|Any CPU.Build.0 = Debug|Any CPU
+		{265FB1F2-1B4B-4E48-9038-534740AE100C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{265FB1F2-1B4B-4E48-9038-534740AE100C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{265FB1F2-1B4B-4E48-9038-534740AE100C}.Release_Ubuntu|Any CPU.ActiveCfg = Release|Any CPU
+		{265FB1F2-1B4B-4E48-9038-534740AE100C}.Release_Ubuntu|Any CPU.Build.0 = Release|Any CPU
+		{265FB1F2-1B4B-4E48-9038-534740AE100C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{265FB1F2-1B4B-4E48-9038-534740AE100C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A278AEC-BC34-4702-8B1A-137753CD11CF}.Debug_Ubuntu|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A278AEC-BC34-4702-8B1A-137753CD11CF}.Debug_Ubuntu|Any CPU.Build.0 = Debug|Any CPU
+		{8A278AEC-BC34-4702-8B1A-137753CD11CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A278AEC-BC34-4702-8B1A-137753CD11CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A278AEC-BC34-4702-8B1A-137753CD11CF}.Release_Ubuntu|Any CPU.ActiveCfg = Release|Any CPU
+		{8A278AEC-BC34-4702-8B1A-137753CD11CF}.Release_Ubuntu|Any CPU.Build.0 = Release|Any CPU
+		{8A278AEC-BC34-4702-8B1A-137753CD11CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A278AEC-BC34-4702-8B1A-137753CD11CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Debug_Ubuntu|Any CPU.ActiveCfg = Debug|Any CPU
+		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Debug_Ubuntu|Any CPU.Build.0 = Debug|Any CPU
+		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Release_Ubuntu|Any CPU.ActiveCfg = Release|Any CPU
+		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Release_Ubuntu|Any CPU.Build.0 = Release|Any CPU
+		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D111E720-97A8-4FA3-9657-7BE3E8087D9D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5AF73C1C-2D0B-4D57-9413-7680796894E5}
+	EndGlobalSection
+EndGlobal

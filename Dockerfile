@@ -4,7 +4,9 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster AS build
 WORKDIR /src
 COPY ["ChatServer/ChatServer.csproj", "ChatServer/"]
-COPY ["WebSocket-Core/WebSocket-Core.csproj", "WebSocket-Core/"]
+COPY ["ChatRepository/ChatRepository.csproj", "ChatRepository/"]
+COPY ["ChatModel/ChatModel.csproj", "ChatModel/"]
+COPY ["BeetleX/BeetleX.csproj", "BeetleX/"]
 RUN dotnet restore "ChatServer/ChatServer.csproj"
 
 COPY . .

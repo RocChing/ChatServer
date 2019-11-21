@@ -34,6 +34,12 @@ namespace ChatServer
         {
             ISession session = e.Session;
             string json = e.Stream.ToPipeStream().ReadLine();
+            if (json.IsNullOrEmpty())
+            {
+                int len = (int)e.Stream.Length;
+                json = e.Stream.ToPipeStream().ReadString(len);
+            }
+            Console.WriteLine(json);
             CmdInfo info = null;
             try
             {

@@ -13,7 +13,7 @@ namespace ChatClient
     {
         private AsyncTcpClient client;
         private User user;
-        private readonly string host = "localhost";
+        private readonly string host = "47.95.194.168";//localhost
         public ChatClient()
         {
             Init();

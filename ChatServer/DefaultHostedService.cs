@@ -10,6 +10,7 @@ using ChatModel;
 using BeetleX;
 using BeetleX.EventArgs;
 using ChatRepository;
+using ChatModel.Entity;
 
 namespace ChatServer
 {
@@ -17,10 +18,10 @@ namespace ChatServer
     {
         private readonly ServerConfig serverConfig;
         private readonly ServerOptions serverOptions;
-        private readonly IServerHandler  serverHandler;
+        private readonly IServerHandler serverHandler;
 
         private readonly IUserRepository userRepository;
-        public DefaultHostedService(IOptions<ServerConfig> options, ServerOptions serverOptions, IServerHandler  serverHandler, IUserRepository userRepository)
+        public DefaultHostedService(IOptions<ServerConfig> options, ServerOptions serverOptions, IServerHandler serverHandler, IUserRepository userRepository)
         {
             this.serverConfig = options.Value;
             this.serverOptions = serverOptions;
@@ -31,8 +32,6 @@ namespace ChatServer
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("服务启动");
-            userRepository.Insert();
-            //return Task.Factory.StartNew(StartChatServer);
             //StartChatServer();
             return Task.FromResult(0);
         }

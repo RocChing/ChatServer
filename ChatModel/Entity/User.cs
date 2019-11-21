@@ -7,14 +7,14 @@ using System.ComponentModel.DataAnnotations;
 namespace ChatModel.Entity
 {
     [Table("T_User")]
-    public class User
+    public class User : BaseEntity
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }
-
         [Required]
         public string Name { get; set; }
+
+        public string Password { get; set; }
+
+        public int Gender { get; set; }
 
         public string NickName { get; set; }
 
@@ -24,15 +24,9 @@ namespace ChatModel.Entity
 
         public string Avatar { get; set; }
 
-        public int Enabled { get; set; }
-
-        public DateTime CreateTime { get; set; }
-
-        public DateTime UpdateTime { get; set; }
-
         public User()
         {
-            Enabled = 1;
+
         }
     }
 }

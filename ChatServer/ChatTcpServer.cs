@@ -49,6 +49,7 @@ namespace ChatServer
                     SendError(session, "参数错误-Token");
                     return;
                 }
+
                 switch (info.Type)
                 {
                     case CmdType.Login:

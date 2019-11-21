@@ -17,7 +17,6 @@ namespace BeetleX
 
         private bool mIsDisposed = false;
 
-
         private Buffers.PipeStream mBaseNetStream;
 
         private SslStreamX mSslStream;
@@ -57,7 +56,6 @@ namespace BeetleX
         public Buffers.SocketAsyncEventArgsX ReceiveEventArgs { get; set; }
 
         private Dictionary<string, object> mProperties = new Dictionary<string, object>();
-
 
         public string Host { get; set; }
 
@@ -216,7 +214,6 @@ namespace BeetleX
             set;
         }
 
-
         public double TimeOut{get;set;} = 999999999;
 
         public EndPoint RemoteEndPoint
@@ -330,7 +327,6 @@ namespace BeetleX
             mSendStatus = 0;
             ProcessSendMessages();
         }
-
 
         public bool Send(object data)
         {

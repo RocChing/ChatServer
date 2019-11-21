@@ -6,83 +6,102 @@ using BeetleX.EventArgs;
 using ChatModel.Input;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
+using ChatRepository;
+using ChatModel.Entity;
 
 namespace ChatServer
 {
     public class ChatTcpServer : ServerHandlerBase
     {
         private ServerConfig serverConfig;
-        public ChatTcpServer(IOptions<ServerConfig> options)
+        private ILogger<ChatTcpServer> logger;
+        private IUserRepository userRepository;
+        private readonly string currentUserKey = "UserInfoKey";
+        public ChatTcpServer(ILogger<ChatTcpServer> log, IOptions<ServerConfig> options, IUserRepository userRepository)
         {
             serverConfig = options.Value;
+            logger = log;
+            this.userRepository = userRepository;
         }
 
         public override void Connected(IServer server, ConnectedEventArgs e)
         {
-            Console.WriteLine($"有客户端连接ID:{e.Session.ID}");
+            logger.LogInformation($"有客户端连接ID:{e.Session.ID}");
         }
 
         public override void SessionReceive(IServer server, SessionReceiveEventArgs e)
         {
+            ISession session = e.Session;
             string json = e.Stream.ToPipeStream().ReadLine();
-            Console.WriteLine(json);
-            MsgInfo info = null;
+            CmdInfo info = null;
             try
             {
-                info = JsonSerializer.Deserialize<MsgInfo>(json);
+                info = JsonSerializer.Deserialize<CmdInfo>(json);
+
+                if (info == null)
+                {
+                    SendError(session, "参数错误-JSON");
+                }
+
                 if (!info.IsValid(serverConfig.ValidString))
                 {
-                    SendError(e, "参数错误-Token");
+                    SendError(session, "参数错误-Token");
                     return;
                 }
                 switch (info.Type)
                 {
                     case CmdType.Login:
-                        Login(e, info);
+                        Login(session, info);
                         break;
                     case CmdType.SendMsg:
-                        SendMsg(server, e, info);
+                        SendMsg(server, session, info);
                         break;
                     default:
-                        SendError(e, "参数错误-CmdType");
+                        SendError(session, "参数错误-CmdType");
                         break;
                 }
-                return;
             }
             catch (Exception ex)
             {
                 server.Error(ex, e.Session, ex.Message);
             }
-            if (info == null)
-            {
-                SendError(e, "参数错误-JSON");
-            }
         }
 
-        private void Login(SessionReceiveEventArgs e, MsgInfo info)
+        private void Login(ISession session, CmdInfo info)
         {
-            LoginInput input = info.As<LoginInput>();
+            LoginInfo input = info.As<LoginInfo>();
+            if (input == null)
+            {
+                SendError(session, "参数错误-LoginInpu");
+                return;
+            }
+            var user = userRepository.Login(input);
+            if (user == null)
+            {
+                SendError(session, "登录失败-请检查用户名或密码");
+                return;
+            }
+            session[currentUserKey] = user;
+            SendInfo(session, info.Clone(user));
+        }
+
+        private void SendMsg(IServer server, ISession session, CmdInfo info)
+        {
+            MsgInfo input = info.As<MsgInfo>();
             if (input != null)
             {
-                if ("admin".Equals(input.Name, StringComparison.OrdinalIgnoreCase) && "1".Equals(input.Password))
+                ISession from = GetSession(server, input.From);
+                if (from == null)
                 {
-                    Send(e, new MsgInfo(serverConfig.ValidString, CmdType.Login, "登录成功"));
+                    SendError(session, "您还没有登录系统");
+                    return;
                 }
-            }
-        }
-
-        private void SendMsg(IServer server, SessionReceiveEventArgs e, MsgInfo info)
-        {
-            MsgInput input = info.As<MsgInput>();
-            if (input != null)
-            {
-                input.From = e.Session.ID;
                 switch (input.ToType)
                 {
                     case MsgToType.User:
-                        int sessionId = Convert.ToInt32(input.To);
-                        ISession session = server.GetSession(sessionId);
-                        Send(session, info);
+                        ISession toSession = GetSession(server, input.To);
+                        SendInfo(toSession, info, new ReceiveMsgInfo(GetUserInfo(server, input.From), input));
                         break;
                     case MsgToType.Group:
                         break;
@@ -92,24 +111,58 @@ namespace ChatServer
             }
         }
 
-        private void Send(SessionReceiveEventArgs e, MsgInfo info)
+        private ISession GetSession(IServer server, int userId)
         {
-            e.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info));
-            e.Stream.Flush();
+            var sessions = server.GetOnlines();
+            foreach (var item in sessions)
+            {
+                object obj = item[currentUserKey];
+                if (obj == null) continue;
+                if (obj is User user)
+                {
+                    if (user.Id == userId)
+                    {
+                        return item;
+                    }
+                }
+            }
+            return null;
         }
 
-        private void SendError(SessionReceiveEventArgs e, string msg)
+        private User GetUserInfo(IServer server, int userId)
         {
-            MsgInfo info = new MsgInfo(serverConfig.ValidString, CmdType.Error, msg);
-            e.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info));
-            e.Stream.Flush();
+            var sessions = server.GetOnlines();
+            foreach (var item in sessions)
+            {
+                object obj = item[currentUserKey];
+                if (obj == null) continue;
+                if (obj is User user)
+                {
+                    if (user.Id == userId)
+                    {
+                        return user;
+                    }
+                }
+            }
+            return null;
         }
 
-        private void Send(ISession session, MsgInfo info)
+        private void SendInfo(ISession session, CmdInfo info, object data)
         {
             if (session == null)
             {
-                Console.WriteLine("没有找到session");
+                logger.LogWarning("没有找到session");
+                return;
+            }
+            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info.Clone(data)));
+            session.Stream.Flush();
+        }
+
+        private void SendInfo(ISession session, CmdInfo info)
+        {
+            if (session == null)
+            {
+                logger.LogWarning("没有找到session");
                 return;
             }
             session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info));
@@ -118,7 +171,7 @@ namespace ChatServer
 
         private void SendError(ISession session, string msg)
         {
-            MsgInfo info = new MsgInfo(serverConfig.ValidString, CmdType.Error, msg);
+            CmdInfo info = new CmdInfo(serverConfig.ValidString, CmdType.Error, msg);
             session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info));
             session.Stream.Flush();
         }

@@ -4,16 +4,17 @@ using System.Text;
 using System.Text.Json;
 using BeetleX.Clients;
 using BeetleX;
-using ChatModel;
+using ChatModel.Input;
+using ChatModel.Entity;
 
 namespace ChatClient
 {
-    public class WebSocketClient
+    public class ChatClient
     {
         private AsyncTcpClient client;
-
+        private User user;
         private readonly string host = "localhost";
-        public WebSocketClient()
+        public ChatClient()
         {
             Init();
         }
@@ -25,11 +26,25 @@ namespace ChatClient
             {
                 string line = args.Stream.ToPipeStream().ReadLine();
                 line = ChatModel.Util.StringUtil.GetGBString(line);
-                Console.WriteLine(line);
-            };
-            client.Connected = c =>
-            {
-                Console.WriteLine("连接到服务器: " + c.IsConnected);
+
+                CmdInfo info = JsonSerializer.Deserialize<CmdInfo>(line);
+                switch (info.Type)
+                {
+                    case CmdType.Error:
+                        Console.WriteLine(info.GetDataRowText());
+                        break;
+                    case CmdType.Login:
+                        user = info.As<User>();
+                        Console.WriteLine($"欢迎[{user.Name}]登录系统");
+                        break;
+                    case CmdType.SendMsg:
+                        ReceiveMsgInfo receiveMsgInfo = info.As<ReceiveMsgInfo>();
+                        if (receiveMsgInfo != null)
+                        {
+                            Console.WriteLine($"[{receiveMsgInfo.From.Name}]:[{receiveMsgInfo.Msg}]");
+                        }
+                        break;
+                }
             };
         }
 
@@ -50,6 +65,12 @@ namespace ChatClient
         {
             string json = JsonSerializer.Serialize(data);
             Send(json);
+        }
+
+        public int GetUserId()
+        {
+            if (user != null) return user.Id;
+            return 0;
         }
 
         public void Close()

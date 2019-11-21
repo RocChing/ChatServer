@@ -17,8 +17,7 @@ namespace BeetleX
     public interface ISession : IDisposable
     {
 
-        double TimeOut
-        { get; set; }
+        double TimeOut { get; set; }
 
         string Host { get; set; }
 
@@ -56,7 +55,6 @@ namespace BeetleX
         System.Net.Sockets.Socket Socket
         { get; }
 
-
         string Name { get; set; }
 
         IServer Server { get; }
@@ -82,9 +80,7 @@ namespace BeetleX
 
         bool SSL { get; }
 
-        AuthenticationType Authentication
-        { get; set; }
-
+        AuthenticationType Authentication { get; set; }
     }
 
     public enum AuthenticationType : int

@@ -8,6 +8,7 @@ namespace ChatModel.Input
     {
         Login = 1,
         SendMsg = 2,
-        Error = 0
+        Error = 0,
+        Info = 100
     }
 }

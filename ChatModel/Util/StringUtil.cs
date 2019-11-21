@@ -26,6 +26,7 @@ namespace ChatModel.Util
             string result = reg.Replace(content, ReplaceMatchEvaluator);
             return result;
         }
+
         private static string ReplaceMatchEvaluator(System.Text.RegularExpressions.Match m)
         {
             string reult = ToGB2312(m.Value);

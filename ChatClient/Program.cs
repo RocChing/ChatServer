@@ -5,7 +5,7 @@ namespace ChatClient
 {
     class Program
     {
-        static WebSocketClient client = new WebSocketClient();
+        static ChatClient client = new ChatClient();
         static string validString = "ef0a6a74fc2343d18edf56cf4eb07211";
         static void Main(string[] args)
         {
@@ -52,7 +52,7 @@ namespace ChatClient
             string name = Console.ReadLine();
             Console.Write("请输入密码:");
             string password = Console.ReadLine();
-            client.Send(new MsgInfo(validString, CmdType.Login, new LoginInput()
+            client.Send(new CmdInfo(validString, CmdType.Login, new LoginInfo()
             {
                 Name = name,
                 Password = password
@@ -65,10 +65,11 @@ namespace ChatClient
             string to = Console.ReadLine();
             Console.Write("请输入消息:");
             string msg = Console.ReadLine();
-            client.Send(new MsgInfo(validString, CmdType.SendMsg, new MsgInput()
+            client.Send(new CmdInfo(validString, CmdType.SendMsg, new MsgInfo()
             {
+                From = client.GetUserId(),
                 Msg = msg,
-                To = to,
+                To = Convert.ToInt32(to),
                 Type = MsgType.Text,
                 ToType = MsgToType.User
             }));

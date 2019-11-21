@@ -43,7 +43,7 @@ namespace ChatServer
                .ConfigureServices((context, services) =>
                {
                    services.Configure<ServerConfig>(context.Configuration.GetSection(nameof(ServerConfig)));
-                   services.AddHostedService<DefaultHostedService>();
+                   services.AddHostedService<ChatHostedService>();
 
                    services.AddDbContext<ChatDbContext>(opt =>
                    {

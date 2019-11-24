@@ -18,11 +18,15 @@ namespace ChatServer
         private ILogger<ChatTcpServer> logger;
         private IUserRepository userRepository;
         private readonly string currentUserKey = "UserInfoKey";
+        private JsonSerializerOptions jsonOpt;
         public ChatTcpServer(ILogger<ChatTcpServer> log, IOptions<ServerConfig> options, IUserRepository userRepository)
         {
             serverConfig = options.Value;
             logger = log;
             this.userRepository = userRepository;
+
+            jsonOpt = new JsonSerializerOptions();
+            jsonOpt.Converters.Add(new DatetimeJsonConverter());
         }
 
         public override void Connected(IServer server, ConnectedEventArgs e)
@@ -63,6 +67,9 @@ namespace ChatServer
                         break;
                     case CmdType.SendMsg:
                         SendMsg(server, session, info);
+                        break;
+                    case CmdType.SearchUser:
+                        SearchUser(server, session, info);
                         break;
                     default:
                         SendError(session, "参数错误-CmdType");
@@ -118,6 +125,13 @@ namespace ChatServer
             }
         }
 
+        private void SearchUser(IServer server, ISession session, CmdInfo info)
+        {
+            string key = info.Data.ToString();
+            var list = userRepository.GetListByKey(key);
+            SendInfo(session, info.Clone(list));
+        }
+
         private ISession GetSession(IServer server, int userId)
         {
             var sessions = server.GetOnlines();
@@ -161,7 +175,7 @@ namespace ChatServer
                 logger.LogWarning("没有找到session");
                 return;
             }
-            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info.Clone(data)));
+            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info.Clone(data), options: jsonOpt));
             session.Stream.Flush();
         }
 
@@ -172,14 +186,14 @@ namespace ChatServer
                 logger.LogWarning("没有找到session");
                 return;
             }
-            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info));
+            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info, options: jsonOpt));
             session.Stream.Flush();
         }
 
         private void SendError(ISession session, string msg)
         {
             CmdInfo info = new CmdInfo(serverConfig.ValidString, CmdType.Error, msg);
-            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info));
+            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info, options: jsonOpt));
             session.Stream.Flush();
         }
     }

@@ -9,6 +9,7 @@ using System.IO;
 
 using BeetleX;
 using ChatRepository;
+using System.Text.Json;
 
 namespace ChatServer
 {
@@ -44,6 +45,8 @@ namespace ChatServer
                {
                    services.Configure<ServerConfig>(context.Configuration.GetSection(nameof(ServerConfig)));
                    services.AddHostedService<ChatHostedService>();
+
+                   // services.AddJsonOptions();
 
                    services.AddDbContext<ChatDbContext>(opt =>
                    {

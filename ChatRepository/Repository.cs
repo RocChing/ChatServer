@@ -9,7 +9,7 @@ namespace ChatRepository
 {
     public class Repository<T> : IRepository<T> where T : BaseEntity
     {
-        private readonly ChatDbContext db;
+        protected readonly ChatDbContext db;
         public Repository(ChatDbContext chatDbContext)
         {
             db = chatDbContext;

@@ -18,5 +18,7 @@ namespace ChatRepository
         IEnumerable<T> GetList(Expression<Func<T, bool>> where);
 
         bool DeleteById(int id);
+
+        bool Exist(Expression<Func<T, bool>> where);
     }
 }

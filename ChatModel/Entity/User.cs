@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using ChatModel.Input;
 
 namespace ChatModel.Entity
 {
@@ -28,5 +29,18 @@ namespace ChatModel.Entity
         {
 
         }
+
+        public User(UserExtInfo info)
+        {
+            Name = info.Name;
+            NickName = info.NickName;
+            Gender = info.Gender;
+            Avatar = info.Avatar;
+            Phone = info.Phone;
+            Email = string.Empty;
+            Enabled = 1;
+        }
+
+        public const string PASSWORD = "111111";
     }
 }

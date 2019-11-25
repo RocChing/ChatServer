@@ -15,7 +15,7 @@ namespace ChatRepository
             db = chatDbContext;
         }
 
-        public bool DeleteById(int id)
+        public virtual bool DeleteById(int id)
         {
             var model = db.Set<T>().Find(id);
             model.Enabled = 0;
@@ -23,28 +23,34 @@ namespace ChatRepository
             return count > 0;
         }
 
-        public T Get(Expression<Func<T, bool>> where)
+        public virtual T Get(Expression<Func<T, bool>> where)
         {
             return db.Set<T>().FirstOrDefault(where);
         }
 
-        public T GetById(int id)
+        public virtual T GetById(int id)
         {
             return db.Set<T>().Find(id);
         }
 
-        public IEnumerable<T> GetList(Expression<Func<T, bool>> where)
+        public virtual IEnumerable<T> GetList(Expression<Func<T, bool>> where)
         {
             return db.Set<T>().Where(where).ToList();
         }
 
-        public T InsertOrUpdate(T model)
+        public virtual bool Exist(Expression<Func<T, bool>> where)
+        {
+            return this.Get(where) != null;
+        }
+
+        public virtual T InsertOrUpdate(T model)
         {
             bool addFlag = model.Id < 1;
             if (addFlag)
             {
                 model.Enabled = 1;
                 model.CreateTime = DateTime.Now;
+                model.UpdateTime = model.CreateTime;
                 db.Set<T>().Add(model);
             }
             else

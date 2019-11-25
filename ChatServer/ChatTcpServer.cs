@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using ChatRepository;
 using ChatModel.Entity;
+using ChatModel.Util;
 
 namespace ChatServer
 {
@@ -71,6 +72,9 @@ namespace ChatServer
                     case CmdType.SearchUser:
                         SearchUser(server, session, info);
                         break;
+                    case CmdType.AddUser:
+                        AddUser(session, info);
+                        break;
                     default:
                         SendError(session, "参数错误-CmdType");
                         break;
@@ -130,6 +134,29 @@ namespace ChatServer
             string key = info.Data.ToString();
             var list = userRepository.GetListByKey(key);
             SendInfo(session, info.Clone(list));
+        }
+
+        private void AddUser(ISession session, CmdInfo info)
+        {
+            UserExtInfo userExt = info.As<UserExtInfo>();
+            if (userExt == null)
+            {
+                SendError(session, "参数错误-UserExtInfo");
+            }
+
+            try
+            {
+                User user = new User(userExt)
+                {
+                    Password = StringUtil.GetMd5String(User.PASSWORD)
+                };
+                userRepository.InsertOrUpdate(user);
+                SendInfo(session, info.Clone("添加成功"));
+            }
+            catch (Exception e)
+            {
+                SendError(session, e.Message);
+            }
         }
 
         private ISession GetSession(IServer server, int userId)

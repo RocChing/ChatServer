@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ChatModel.Input
 {
-    public class SearchUserInfo : UserInfo
+    public class UserExtInfo : UserInfo
     {
         public string Avatar { get; set; }
 

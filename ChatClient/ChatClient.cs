@@ -13,7 +13,8 @@ namespace ChatClient
     {
         private AsyncTcpClient client;
         private User user;
-        private readonly string host = "47.95.194.168";//localhost
+        //private readonly string host = "47.95.194.168";//localhost
+        private readonly string host = "localhost";
         public ChatClient()
         {
             Init();
@@ -46,11 +47,15 @@ namespace ChatClient
                         break;
                 }
             };
+            client.Connected += (c) =>
+            {
+                Console.WriteLine(c);
+            };
+            client.Connect();
         }
 
         public void Send(string msg)
         {
-            client.Connect();
             client.Stream.ToPipeStream().WriteLine(msg);
             client.Stream.Flush();
         }

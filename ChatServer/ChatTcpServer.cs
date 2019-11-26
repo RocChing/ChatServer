@@ -33,6 +33,8 @@ namespace ChatServer
         public override void Connected(IServer server, ConnectedEventArgs e)
         {
             logger.LogInformation($"有客户端连接ID:{e.Session.ID}");
+            object obj = e.Session[currentUserKey];
+            logger.LogInformation($"the session is null? {obj == null}");
         }
 
         public override void SessionReceive(IServer server, SessionReceiveEventArgs e)

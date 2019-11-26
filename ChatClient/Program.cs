@@ -61,7 +61,9 @@ namespace ChatClient
 
         static void SendMsg()
         {
-            Console.Write("请输入对方ID:");
+            //Console.WriteLine("请输入From ID:");
+            //string from = Console.ReadLine();
+            Console.Write("请输入To ID:");
             string to = Console.ReadLine();
             Console.Write("请输入消息:");
             string msg = Console.ReadLine();

@@ -15,9 +15,15 @@ namespace ChatModel.Input
 
         public string Token { get; set; }
 
-        public CmdInfo() { }
+        private JsonSerializerOptions jsonOpt;
 
-        public CmdInfo(string vs, CmdType type, object data)
+        public CmdInfo()
+        {
+            jsonOpt = new JsonSerializerOptions();
+            jsonOpt.Converters.Add(new DatetimeJsonConverter());
+        }
+
+        public CmdInfo(string vs, CmdType type, object data) : this()
         {
             Type = type;
             Data = data;
@@ -29,7 +35,7 @@ namespace ChatModel.Input
         {
             string text = GetDataRowText();
             if (text.IsNullOrEmpty()) return default;
-            return JsonSerializer.Deserialize<T>(text);
+            return JsonSerializer.Deserialize<T>(text, jsonOpt);
         }
 
         public string GetDataRowText()
@@ -51,7 +57,7 @@ namespace ChatModel.Input
 
         private void SetToken(string validString)
         {
-            string json = JsonSerializer.Serialize(Data);
+            string json = JsonSerializer.Serialize(Data, jsonOpt);
             string input = $"{validString}-{json}";
             string md5String = Util.StringUtil.GetMd5String(input);
             Token = md5String;

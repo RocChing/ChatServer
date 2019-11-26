@@ -4,7 +4,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace ChatServer
+namespace ChatModel
 {
     public class DatetimeJsonConverter : JsonConverter<DateTime>
     {

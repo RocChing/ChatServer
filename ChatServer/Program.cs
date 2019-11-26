@@ -46,8 +46,6 @@ namespace ChatServer
                    services.Configure<ServerConfig>(context.Configuration.GetSection(nameof(ServerConfig)));
                    services.AddHostedService<ChatHostedService>();
 
-                   // services.AddJsonOptions();
-
                    services.AddDbContext<ChatDbContext>(opt =>
                    {
                        string connectString = context.Configuration.GetConnectionString("ChatDb");
@@ -57,6 +55,7 @@ namespace ChatServer
                    services.AddScoped<IUserRepository, UserRepository>();
 
                    services.AddSingleton(new ServerOptions());
+                   services.AddSingleton(new MessageManager());
                    services.AddScoped<IServerHandler, ChatTcpServer>();
                })
                .Build();

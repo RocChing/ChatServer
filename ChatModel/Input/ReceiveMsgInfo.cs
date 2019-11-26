@@ -22,6 +22,16 @@ namespace ChatModel.Input
         /// </summary>
         public MsgType Type { get; set; }
 
+        /// <summary>
+        /// 发给谁的 User = UserId , Group=GroupId
+        /// </summary>
+        public int To { get; set; }
+
+        /// <summary>
+        /// 发给谁的类型
+        /// </summary>
+        public MsgToType ToType { get; set; }
+
         public ReceiveMsgInfo() { }
 
         public ReceiveMsgInfo(User from, MsgInfo info)
@@ -29,6 +39,8 @@ namespace ChatModel.Input
             From = new UserInfo(from);
             Msg = info.Msg;
             Type = info.Type;
+            To = info.To;
+            ToType = info.ToType;
         }
     }
 }

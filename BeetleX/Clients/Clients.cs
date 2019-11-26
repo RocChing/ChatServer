@@ -622,8 +622,9 @@ namespace BeetleX.Clients
                     mReadMessageAwait.Error(e_);
                 ClientError?.Invoke(this, e);
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine(ex.ToString());
             }
         }
 

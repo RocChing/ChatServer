@@ -28,6 +28,7 @@ namespace ChatClient
                 string line = args.Stream.ToPipeStream().ReadLine();
                 line = ChatModel.Util.StringUtil.GetGBString(line);
 
+                Console.WriteLine(line);
                 CmdInfo info = JsonSerializer.Deserialize<CmdInfo>(line);
                 switch (info.Type)
                 {
@@ -49,7 +50,7 @@ namespace ChatClient
             };
             client.Connected += (c) =>
             {
-                Console.WriteLine(c);
+                Console.WriteLine("已经连接到服务器");
             };
             client.Connect();
         }

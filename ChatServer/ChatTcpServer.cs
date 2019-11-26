@@ -10,21 +10,25 @@ using Microsoft.Extensions.Logging;
 using ChatRepository;
 using ChatModel.Entity;
 using ChatModel.Util;
+using ChatModel;
 
 namespace ChatServer
 {
     public class ChatTcpServer : ServerHandlerBase
     {
-        private ServerConfig serverConfig;
-        private ILogger<ChatTcpServer> logger;
-        private IUserRepository userRepository;
+        private readonly ServerConfig serverConfig;
+        private readonly ILogger<ChatTcpServer> logger;
+        private readonly IUserRepository userRepository;
         private readonly string currentUserKey = "UserInfoKey";
-        private JsonSerializerOptions jsonOpt;
-        public ChatTcpServer(ILogger<ChatTcpServer> log, IOptions<ServerConfig> options, IUserRepository userRepository)
+        private readonly JsonSerializerOptions jsonOpt;
+        private readonly MessageManager msgMgr;
+
+        public ChatTcpServer(ILogger<ChatTcpServer> log, IOptions<ServerConfig> options, MessageManager messageManager, IUserRepository userRepository)
         {
             serverConfig = options.Value;
             logger = log;
             this.userRepository = userRepository;
+            msgMgr = messageManager;
 
             jsonOpt = new JsonSerializerOptions();
             jsonOpt.Converters.Add(new DatetimeJsonConverter());
@@ -77,6 +81,9 @@ namespace ChatServer
                     case CmdType.AddUser:
                         AddUser(session, info);
                         break;
+                    case CmdType.LoginById:
+                        LoginById(session, info);
+                        break;
                     default:
                         SendError(session, "参数错误-CmdType");
                         break;
@@ -106,6 +113,31 @@ namespace ChatServer
             SendInfo(session, info.Clone(user));
         }
 
+        private void LoginById(ISession session, CmdInfo info)
+        {
+            if (info.Data == null) return;
+            string str = info.Data.ToString();
+            int userId = Convert.ToInt32(str);
+            var user = userRepository.GetById(userId);
+            if (user == null)
+            {
+                SendError(session, "登录失败-请检查用户ID");
+                return;
+            }
+            session[currentUserKey] = user;
+            var queue = msgMgr.GetQueue(userId);
+            if (queue != null && queue.Count > 0)
+            {
+                while (!queue.IsEmpty)
+                {
+                    if (queue.TryDequeue(out CmdInfo cloneInfo))
+                    {
+                        SendInfo(session, cloneInfo);
+                    }
+                }
+            }
+        }
+
         private void SendMsg(IServer server, ISession session, CmdInfo info)
         {
             MsgInfo input = info.As<MsgInfo>();
@@ -117,6 +149,7 @@ namespace ChatServer
                     SendError(session, "您还没有登录系统");
                     return;
                 }
+                Console.WriteLine(input.Type);
                 switch (input.ToType)
                 {
                     case MsgToType.User:
@@ -197,14 +230,17 @@ namespace ChatServer
             return null;
         }
 
-        private void SendInfo(ISession session, CmdInfo info, object data)
+        private void SendInfo(ISession session, CmdInfo info, ReceiveMsgInfo data)
         {
+            CmdInfo cloneInfo = info.Clone(data);
             if (session == null)
             {
-                logger.LogWarning("没有找到session");
+                logger.LogWarning("没有找到session--进入待发送队列");
+                msgMgr.Add(data.To, cloneInfo);
                 return;
             }
-            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info.Clone(data), options: jsonOpt));
+            Console.WriteLine("找到用户");
+            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(cloneInfo, options: jsonOpt));
             session.Stream.Flush();
         }
 

@@ -30,7 +30,7 @@ namespace ChatRepository
 
         public virtual T GetById(int id)
         {
-            return db.Set<T>().Find(id);
+            return db.Set<T>().FirstOrDefault(m => m.Id == id && m.Enabled == 1);
         }
 
         public virtual IEnumerable<T> GetList(Expression<Func<T, bool>> where)

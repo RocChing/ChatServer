@@ -11,6 +11,7 @@ namespace ChatModel.Input
         SearchUser = 3,
         AddUser = 4,
         LoginById = 5,
+        Check = 6,
         Error = 0,
         Info = 100
     }

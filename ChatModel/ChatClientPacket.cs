@@ -22,7 +22,6 @@ namespace ChatModel
 
         public IMessageTypeHeader TypeHeader { get; set; }
 
-
         public override IClientPacket Clone()
         {
             ChatClientPacket result = new ChatClientPacket();

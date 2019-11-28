@@ -10,7 +10,7 @@ namespace ChatModel.Input
         /// <summary>
         /// 发送者信息
         /// </summary>
-         public UserInfo From { get; set; }
+        public UserInfo From { get; set; }
 
         /// <summary>
         /// 信息
@@ -32,6 +32,8 @@ namespace ChatModel.Input
         /// </summary>
         public MsgToType ToType { get; set; }
 
+        public string ReceiveTime { get; set; }
+
         public ReceiveMsgInfo() { }
 
         public ReceiveMsgInfo(User from, MsgInfo info)
@@ -41,6 +43,7 @@ namespace ChatModel.Input
             Type = info.Type;
             To = info.To;
             ToType = info.ToType;
+            ReceiveTime = DateTime.Now.ToString(Constant.DateTimeFormat);
         }
     }
 }

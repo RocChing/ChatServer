@@ -84,6 +84,9 @@ namespace ChatServer
                     case CmdType.LoginById:
                         LoginById(session, info);
                         break;
+                    case CmdType.Check:
+                        Check(session, info);
+                        break;
                     default:
                         SendError(session, "参数错误-CmdType");
                         break;
@@ -93,6 +96,11 @@ namespace ChatServer
             {
                 server.Error(ex, e.Session, ex.Message);
             }
+        }
+
+        private void Check(ISession session, CmdInfo info)
+        {
+            SendInfo(session, info.Clone(Constant.Healthy));
         }
 
         private void Login(ISession session, CmdInfo info)
@@ -132,6 +140,7 @@ namespace ChatServer
                 {
                     if (queue.TryDequeue(out CmdInfo cloneInfo))
                     {
+                        logger.LogInformation("发送离线消息");
                         SendInfo(session, cloneInfo);
                     }
                 }
@@ -149,7 +158,6 @@ namespace ChatServer
                     SendError(session, "您还没有登录系统");
                     return;
                 }
-                Console.WriteLine(input.Type);
                 switch (input.ToType)
                 {
                     case MsgToType.User:
@@ -235,7 +243,7 @@ namespace ChatServer
             CmdInfo cloneInfo = info.Clone(data);
             if (session == null)
             {
-                logger.LogWarning("没有找到session--进入待发送队列");
+                logger.LogWarning($"没有找到session--进入待发送队列--to is [{data.To}]");
                 msgMgr.Add(data.To, cloneInfo);
                 return;
             }

@@ -5,12 +5,14 @@ using BeetleX;
 using BeetleX.EventArgs;
 using ChatModel.Input;
 using System.Text.Json;
+using System.Linq;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
 using ChatRepository;
 using ChatModel.Entity;
 using ChatModel.Util;
 using ChatModel;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ChatServer
 {
@@ -20,6 +22,7 @@ namespace ChatServer
         private readonly ILogger<ChatTcpServer> logger;
         private readonly IUserRepository userRepository;
         private readonly string currentUserKey = "UserInfoKey";
+        private readonly string cacheUserListKey = "UserListKey";
         private readonly JsonSerializerOptions jsonOpt;
         private readonly MessageManager msgMgr;
 
@@ -85,7 +88,7 @@ namespace ChatServer
                         LoginById(session, info);
                         break;
                     case CmdType.Check:
-                        Check(session, info);
+                        Check(server, session, info);
                         break;
                     default:
                         SendError(session, "参数错误-CmdType");
@@ -98,9 +101,31 @@ namespace ChatServer
             }
         }
 
-        private void Check(ISession session, CmdInfo info)
+        private void Check(IServer server, ISession session, CmdInfo info)
         {
-            SendInfo(session, info.Clone(Constant.Healthy));
+            object obj = info.Data;
+            int userId = 0;
+            if (obj != null)
+            {
+                int.TryParse(obj.ToString(), out userId);
+            }
+
+            if (userId > 0)
+            {
+                logger.LogInformation($"the session name is: {session.Name}");
+                User user = GetUserInfo(server, userId);
+                if (user == null)
+                {
+                    logger.LogInformation("没有找到session");
+                    user = GetUserInfo(userId);
+                    session[currentUserKey] = user;
+                }
+                else
+                {
+                    logger.LogInformation("找到session");
+                }
+                SendOffLineMsg(session, userId);
+            }
         }
 
         private void Login(ISession session, CmdInfo info)
@@ -147,14 +172,31 @@ namespace ChatServer
             }
         }
 
+        private void SendOffLineMsg(ISession session, int userId)
+        {
+            var queue = msgMgr.GetQueue(userId);
+            if (queue != null && queue.Count > 0)
+            {
+                while (!queue.IsEmpty)
+                {
+                    if (queue.TryDequeue(out CmdInfo cloneInfo))
+                    {
+                        logger.LogInformation("发送离线消息");
+                        SendInfo(session, cloneInfo);
+                    }
+                }
+            }
+        }
+
         private void SendMsg(IServer server, ISession session, CmdInfo info)
         {
             MsgInfo input = info.As<MsgInfo>();
             if (input != null)
             {
-                ISession from = GetSession(server, input.From);
-                if (from == null)
+                User fromUser = GetUserInfo(server, input.From);
+                if (fromUser == null)
                 {
+                    logger.LogInformation($"您还没有登录系统 the session name is: {session.Name}");
                     SendError(session, "您还没有登录系统");
                     return;
                 }
@@ -162,7 +204,7 @@ namespace ChatServer
                 {
                     case MsgToType.User:
                         ISession toSession = GetSession(server, input.To);
-                        SendInfo(toSession, info, new ReceiveMsgInfo(GetUserInfo(server, input.From), input));
+                        SendInfo(toSession, info, new ReceiveMsgInfo(fromUser, input));
                         break;
                     case MsgToType.Group:
                         break;
@@ -238,13 +280,38 @@ namespace ChatServer
             return null;
         }
 
+        private User GetUserInfo(int userId)
+        {
+            MemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+            var list = cache.GetOrCreate(cacheUserListKey, ce =>
+             {
+                 return userRepository.GetList(m => m.Enabled == 1);
+             });
+            User user = null;
+            if (list != null && list.Count() > 0)
+            {
+                user = list.FirstOrDefault(m => m.Id == userId);
+            }
+            if (user == null)
+            {
+                logger.LogError($"没有找到对应的用户--[{userId}]");
+            }
+            return user;
+        }
+
         private void SendInfo(ISession session, CmdInfo info, ReceiveMsgInfo data)
         {
             CmdInfo cloneInfo = info.Clone(data);
             if (session == null)
             {
-                logger.LogWarning($"没有找到session--进入待发送队列--to is [{data.To}]");
-                msgMgr.Add(data.To, cloneInfo);
+                int to = data.To;
+                if (to < 1)
+                {
+                    logger.LogWarning($"参数错误--To:[{to}]");
+                    return;
+                }
+                logger.LogWarning($"没有找到session--进入待发送队列--to is [{to}]");
+                msgMgr.Add(to, cloneInfo);
                 return;
             }
             Console.WriteLine("找到用户");

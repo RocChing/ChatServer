@@ -38,6 +38,11 @@ namespace ChatRepository
             return db.Set<T>().Where(where).ToList();
         }
 
+        public virtual IEnumerable<T> GetAll()
+        {
+            return db.Set<T>().ToList();
+        }
+
         public virtual bool Exist(Expression<Func<T, bool>> where)
         {
             return this.Get(where) != null;

@@ -11,8 +11,11 @@ namespace ChatModel.Input
 
         public UserInfo(User user)
         {
-            Id = user.Id;
-            Name = user.Name;
+            if (user != null)
+            {
+                Id = user.Id;
+                Name = user.Name;
+            }
         }
 
         public int Id { get; set; }

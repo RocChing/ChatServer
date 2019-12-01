@@ -25,6 +25,10 @@ namespace ChatModel.Input
         /// <summary>
         /// 链接
         /// </summary>
-        Link = 5
+        Link = 5,
+        /// <summary>
+        /// 文件
+        /// </summary>
+        File = 6
     }
 }

@@ -15,11 +15,14 @@ namespace ChatModel.Input
             {
                 Id = user.Id;
                 Name = user.Name;
+                Avatar = user.Avatar;
             }
         }
 
         public int Id { get; set; }
 
         public string Name { get; set; }
+
+        public string Avatar { get; set; }
     }
 }

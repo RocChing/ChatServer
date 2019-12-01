@@ -762,7 +762,6 @@ namespace BeetleX.Clients
                     ex.BufferX.Free();
                     tcpclient.DisConnect();
                     tcpclient.mLastError = new SocketException((int)e.SocketError);
-
                 }
                 if (tcpclient.SocketProcessHandler != null)
                     tcpclient.SocketProcessHandler.ReceiveCompleted(tcpclient, e);

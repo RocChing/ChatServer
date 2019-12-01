@@ -30,5 +30,7 @@ namespace ChatModel.Input
         /// 发给谁的类型
         /// </summary>
         public MsgToType ToType { get; set; }
+
+        public byte[] MsgOfBytes { get; set; }
     }
 }

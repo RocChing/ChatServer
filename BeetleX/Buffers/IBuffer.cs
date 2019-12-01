@@ -21,8 +21,6 @@ namespace BeetleX.Buffers
 
     public interface IBuffer : IMemoryBlock
     {
-
-
         bool Eof { get; }
 
         int Size { get; }
@@ -112,7 +110,6 @@ namespace BeetleX.Buffers
             get;
             set;
         }
-
     }
 
     public class Buffer : IBuffer

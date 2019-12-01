@@ -30,7 +30,7 @@ namespace BeetleX
                 threads = 1;
             IOQueues = Math.Min(threads, 16);
             BufferPoolGroups = Environment.ProcessorCount;
-
+            Console.WriteLine($"the Processor Count is: {BufferPoolGroups}");
         }
 
 

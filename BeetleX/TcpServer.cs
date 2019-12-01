@@ -182,7 +182,7 @@ namespace BeetleX
         {
             if (!mInitialized)
             {
-                mReceiveDispatchCenter = new Dispatchs.DispatchCenter<SocketAsyncEventArgsX>(ProcessReceiveArgs,Options.IOQueues);
+                mReceiveDispatchCenter = new Dispatchs.DispatchCenter<SocketAsyncEventArgsX>(ProcessReceiveArgs, Options.IOQueues);
                 int maxBufferSize;
                 if (Options.BufferPoolMaxMemory == 0)
                 {
@@ -252,7 +252,6 @@ namespace BeetleX
         {
             try
             {
-
                 ToInitialize();
                 Status = ServerStatus.Start;
                 foreach (ListenHandler item in this.Options.Listens)
@@ -268,7 +267,7 @@ namespace BeetleX
                 Log(LogType.Info, null,
                    $"BeetleX [V:{typeof(TcpServer).Assembly.GetName().Version}]");
                 Log(LogType.Info, null,
-                    $"Environment [ServerGC:{GCSettings.IsServerGC}][IOQueue:{Options.IOQueueEnabled}|n:{Options.IOQueues}][Threads:{Environment.ProcessorCount}][Private Buffer:{Options.PrivateBufferPool}|{Options.PrivateBufferPoolSize/1024}KB]");
+                    $"Environment [ServerGC:{GCSettings.IsServerGC}][IOQueue:{Options.IOQueueEnabled}|n:{Options.IOQueues}][Threads:{Environment.ProcessorCount}][Private Buffer:{Options.PrivateBufferPool}|{Options.PrivateBufferPoolSize / 1024}KB]");
                 return true;
             }
             catch (Exception e_)
@@ -333,7 +332,7 @@ namespace BeetleX
             session.Port = e.Listen.Port;
             if (Options.PrivateBufferPool)
             {
-                session.ReceiveBufferPool = new PrivateBufferPool(Options.BufferSize,Options.PrivateBufferPoolSize);
+                session.ReceiveBufferPool = new PrivateBufferPool(Options.BufferSize, Options.PrivateBufferPoolSize);
                 session.SendBufferPool = new PrivateBufferPool(Options.BufferSize, Options.PrivateBufferPoolSize);
             }
             else
@@ -362,7 +361,6 @@ namespace BeetleX
                 cead.Session = session;
                 OnConnected(cead);
                 BeginReceive(session);
-
             }
             else
             {
@@ -508,7 +506,6 @@ namespace BeetleX
                     {
                         ProcessReceiveArgs(e);
                     }
-
                 }
                 else
                 {
@@ -516,7 +513,6 @@ namespace BeetleX
                     if (EnableLog(LogType.Debug))
                         Log(LogType.Debug, session, $"{session.RemoteEndPoint} receive close error {e.SocketError} receive:{e.BytesTransferred}");
                     session.Dispose();
-                  
                 }
             }
             catch (Exception e_)

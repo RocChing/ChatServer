@@ -213,7 +213,6 @@ namespace BeetleX.Buffers
                     readCompletionSource.TrySetResult(len);
                 }
             }
-
         }
 
         private IBuffer GetAndVerifyReadBuffer()

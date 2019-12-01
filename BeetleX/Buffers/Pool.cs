@@ -317,7 +317,7 @@ namespace BeetleX.Buffers
             }
             catch (Exception e_)
             {
-
+                Console.WriteLine(e_.ToString());
             }
         }
 

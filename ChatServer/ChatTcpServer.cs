@@ -25,7 +25,7 @@ namespace ChatServer
         private readonly string cacheUserListKey = "UserListKey";
         private readonly JsonSerializerOptions jsonOpt;
         private readonly MessageManager msgMgr;
-
+        private readonly MemoryCache cache;
         public ChatTcpServer(ILogger<ChatTcpServer> log, IOptions<ServerConfig> options, MessageManager messageManager, IUserRepository userRepository)
         {
             serverConfig = options.Value;
@@ -35,6 +35,7 @@ namespace ChatServer
 
             jsonOpt = new JsonSerializerOptions();
             jsonOpt.Converters.Add(new DatetimeJsonConverter());
+            cache = new MemoryCache(new MemoryCacheOptions());
         }
 
         public override void Connected(IServer server, ConnectedEventArgs e)
@@ -43,17 +44,19 @@ namespace ChatServer
             object obj = e.Session[currentUserKey];
             logger.LogInformation($"the session is null? {obj == null}");
         }
-
         public override void SessionReceive(IServer server, SessionReceiveEventArgs e)
         {
+            Console.WriteLine("the msg length is:" + e.Stream.Length);
             ISession session = e.Session;
-            string json = e.Stream.ToPipeStream().ReadLine();
+            string json = e.Stream.ToPipeStream().ReadToEnd();
             if (json.IsNullOrEmpty())
             {
                 int len = (int)e.Stream.Length;
                 json = e.Stream.ToPipeStream().ReadString(len);
             }
-            Console.WriteLine(json);
+
+            Console.WriteLine("the json length is:" + json.Length);
+            //Console.WriteLine(json);
             CmdInfo info = null;
             try
             {
@@ -142,6 +145,7 @@ namespace ChatServer
                 SendError(session, "登录失败-请检查用户名或密码");
                 return;
             }
+            user.Password = string.Empty;
             session[currentUserKey] = user;
             SendInfo(session, info.Clone(user));
         }
@@ -157,6 +161,7 @@ namespace ChatServer
                 SendError(session, "登录失败-请检查用户ID");
                 return;
             }
+            user.Password = string.Empty;
             session[currentUserKey] = user;
             var queue = msgMgr.GetQueue(userId);
             if (queue != null && queue.Count > 0)
@@ -200,6 +205,11 @@ namespace ChatServer
                     SendError(session, "您还没有登录系统");
                     return;
                 }
+                if (input.MsgOfBytes != null)
+                {
+                    logger.LogInformation($"the first byte is: {input.MsgOfBytes[0]}");
+                    logger.LogInformation($"the last byte is: {input.MsgOfBytes[input.MsgOfBytes.Length - 1]}");
+                }
                 switch (input.ToType)
                 {
                     case MsgToType.User:
@@ -218,6 +228,7 @@ namespace ChatServer
         {
             string key = info.Data.ToString();
             var list = userRepository.GetListByKey(key);
+
             SendInfo(session, info.Clone(list));
         }
 
@@ -282,9 +293,10 @@ namespace ChatServer
 
         private User GetUserInfo(int userId)
         {
-            MemoryCache cache = new MemoryCache(new MemoryCacheOptions());
+
             var list = cache.GetOrCreate(cacheUserListKey, ce =>
              {
+                 logger.LogInformation("从数据库读取。。。");
                  return userRepository.GetList(m => m.Enabled == 1);
              });
             User user = null;

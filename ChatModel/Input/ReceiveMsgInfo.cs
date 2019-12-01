@@ -34,6 +34,8 @@ namespace ChatModel.Input
 
         public string ReceiveTime { get; set; }
 
+        public byte[] MsgOfBytes { get; set; }
+
         public ReceiveMsgInfo() { }
 
         public ReceiveMsgInfo(User from, MsgInfo info)
@@ -44,6 +46,7 @@ namespace ChatModel.Input
             To = info.To;
             ToType = info.ToType;
             ReceiveTime = DateTime.Now.ToString(Constant.DateTimeFormat);
+            MsgOfBytes = info.MsgOfBytes;
         }
     }
 }

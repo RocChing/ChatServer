@@ -374,7 +374,6 @@ namespace BeetleX
             }
         }
 
-
         #region read
         public static bool TryRead(Stream stream, int count)
         {

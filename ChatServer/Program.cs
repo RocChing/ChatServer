@@ -17,9 +17,6 @@ namespace ChatServer
     {
         static void Main(string[] args)
         {
-            //Console.WriteLine(Guid.NewGuid().ToString("N"));
-            //Console.ReadLine();
-            //return;
             StartServer();
         }
 
@@ -54,7 +51,7 @@ namespace ChatServer
 
                    services.AddScoped<IUserRepository, UserRepository>();
 
-                   services.AddSingleton(new ServerOptions() { BufferSize = 10240 });
+                   services.AddSingleton(new ServerOptions() { BufferSize = 102400 });
                    services.AddSingleton(new MessageManager());
                    services.AddScoped<IServerHandler, ChatTcpServer>();
                })

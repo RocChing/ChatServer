@@ -31,9 +31,6 @@ namespace ChatServer
         private readonly int minMsgLength = 5;
         private readonly string beginFlag = "N";
 
-        private long msgAllLength = 0;
-        private bool newMsg = false;
-
         private object lockObj = new object();
 
         private readonly ConcurrentDictionary<long, MsgFullInfo> msgFullInfos;
@@ -55,20 +52,18 @@ namespace ChatServer
         public override void Connected(IServer server, ConnectedEventArgs e)
         {
             logger.LogInformation($"有客户端连接ID:{e.Session.ID}");
-            object obj = e.Session[currentUserKey];
-            logger.LogInformation($"the session is null? {obj == null}");
         }
         public override void SessionReceive(IServer server, SessionReceiveEventArgs e)
         {
             if (e.Stream.Length < minMsgLength) return;
-            MsgFullInfo msgFullInfo = msgFullInfos.GetOrAdd(e.Session.ID, key =>
-             {
-                 return new MsgFullInfo(key);
-             });
 
             string json = string.Empty;
             lock (lockObj)
             {
+                MsgFullInfo msgFullInfo = msgFullInfos.GetOrAdd(e.Session.ID, key =>
+                {
+                    return new MsgFullInfo(key);
+                });
                 if (!msgFullInfo.NewMsg)
                 {
                     byte firstChar = (byte)e.Stream.ToPipeStream().ReadByte();
@@ -80,8 +75,8 @@ namespace ChatServer
                     }
                 }
 
-                Console.WriteLine($"the msg currentMsgLength is: {e.Stream.Length}");
-                Console.WriteLine($"the msgAllLength value is: {msgAllLength}");
+                //Console.WriteLine($"the msg currentMsgLength is: {e.Stream.Length}");
+                //Console.WriteLine($"the msgAllLength value is: {msgFullInfo.MsgAllLength}");
 
                 if (msgFullInfo.MsgAllLength > e.Stream.Length)
                 {
@@ -91,10 +86,11 @@ namespace ChatServer
                 msgFullInfo.Reset();
                 json = e.Stream.ToPipeStream().ReadToEnd();
             }
+            if (json.IsNullOrEmpty()) return;
 
             ISession session = e.Session;
 
-            Console.WriteLine($"the json length is:{json.Length}, value is: {json}");
+            //Console.WriteLine($"the json length is:{json.Length}, value is: {json}");
             CmdInfo info = null;
             try
             {

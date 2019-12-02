@@ -178,7 +178,6 @@ namespace BeetleX.Buffers
 
         public static int ReadInt32(byte[] m_buffer, int postion)
         {
-
             return (int)m_buffer[postion + 0] | (int)m_buffer[postion + 1] << 8 | (int)m_buffer[postion + 2] << 16 | (int)m_buffer[postion + 3] << 24;
         }
 

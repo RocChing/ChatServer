@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Text;
 using BeetleX;
 using BeetleX.EventArgs;
@@ -26,6 +27,17 @@ namespace ChatServer
         private readonly JsonSerializerOptions jsonOpt;
         private readonly MessageManager msgMgr;
         private readonly MemoryCache cache;
+
+        private readonly int minMsgLength = 5;
+        private readonly string beginFlag = "N";
+
+        private long msgAllLength = 0;
+        private bool newMsg = false;
+
+        private object lockObj = new object();
+
+        private readonly ConcurrentDictionary<long, MsgFullInfo> msgFullInfos;
+
         public ChatTcpServer(ILogger<ChatTcpServer> log, IOptions<ServerConfig> options, MessageManager messageManager, IUserRepository userRepository)
         {
             serverConfig = options.Value;
@@ -36,6 +48,8 @@ namespace ChatServer
             jsonOpt = new JsonSerializerOptions();
             jsonOpt.Converters.Add(new DatetimeJsonConverter());
             cache = new MemoryCache(new MemoryCacheOptions());
+
+            msgFullInfos = new ConcurrentDictionary<long, MsgFullInfo>();
         }
 
         public override void Connected(IServer server, ConnectedEventArgs e)
@@ -46,17 +60,41 @@ namespace ChatServer
         }
         public override void SessionReceive(IServer server, SessionReceiveEventArgs e)
         {
-            Console.WriteLine("the msg length is:" + e.Stream.Length);
-            ISession session = e.Session;
-            string json = e.Stream.ToPipeStream().ReadToEnd();
-            if (json.IsNullOrEmpty())
+            if (e.Stream.Length < minMsgLength) return;
+            MsgFullInfo msgFullInfo = msgFullInfos.GetOrAdd(e.Session.ID, key =>
+             {
+                 return new MsgFullInfo(key);
+             });
+
+            string json = string.Empty;
+            lock (lockObj)
             {
-                int len = (int)e.Stream.Length;
-                json = e.Stream.ToPipeStream().ReadString(len);
+                if (!msgFullInfo.NewMsg)
+                {
+                    byte firstChar = (byte)e.Stream.ToPipeStream().ReadByte();
+                    string beginMsg = Encoding.UTF8.GetString(new byte[] { firstChar });
+                    if (beginFlag.Equals(beginMsg))
+                    {
+                        msgFullInfo.MsgAllLength = e.Stream.ToPipeStream().ReadInt32();
+                        msgFullInfo.NewMsg = true;
+                    }
+                }
+
+                Console.WriteLine($"the msg currentMsgLength is: {e.Stream.Length}");
+                Console.WriteLine($"the msgAllLength value is: {msgAllLength}");
+
+                if (msgFullInfo.MsgAllLength > e.Stream.Length)
+                {
+                    return;
+                }
+
+                msgFullInfo.Reset();
+                json = e.Stream.ToPipeStream().ReadToEnd();
             }
 
-            Console.WriteLine("the json length is:" + json.Length);
-            //Console.WriteLine(json);
+            ISession session = e.Session;
+
+            Console.WriteLine($"the json length is:{json.Length}, value is: {json}");
             CmdInfo info = null;
             try
             {
@@ -327,8 +365,9 @@ namespace ChatServer
                 return;
             }
             Console.WriteLine("找到用户");
-            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(cloneInfo, options: jsonOpt));
-            session.Stream.Flush();
+            //session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(cloneInfo, options: jsonOpt));
+            //session.Stream.Flush();
+            SendByteMsg(session, JsonSerializer.Serialize(cloneInfo, jsonOpt));
         }
 
         private void SendInfo(ISession session, CmdInfo info)
@@ -338,15 +377,36 @@ namespace ChatServer
                 logger.LogWarning("没有找到session");
                 return;
             }
-            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info, options: jsonOpt));
-            session.Stream.Flush();
+            SendByteMsg(session, JsonSerializer.Serialize(info, jsonOpt));
+            //session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info, options: jsonOpt));
+            //session.Stream.Flush();
         }
 
         private void SendError(ISession session, string msg)
         {
             CmdInfo info = new CmdInfo(serverConfig.ValidString, CmdType.Error, msg);
-            session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info, options: jsonOpt));
+            //session.Stream.ToPipeStream().WriteLine(JsonSerializer.Serialize(info, options: jsonOpt));
+            //session.Stream.Flush();
+            SendByteMsg(session, JsonSerializer.Serialize(info, options: jsonOpt));
+        }
+
+        private void SendByteMsg(ISession session, string msg)
+        {
+            byte[] bytes1 = Encoding.UTF8.GetBytes(beginFlag);
+            byte[] bytes2 = Encoding.UTF8.GetBytes(msg);
+            byte[] bytes3 = BitConverter.GetBytes(bytes2.Length);
+
+            Console.WriteLine($"the [msg] length is:{bytes2.Length}");
+            foreach (var item in bytes3)
+            {
+                Console.WriteLine($"the byte value is:{item}");
+            }
+            session.Stream.ToPipeStream().Write(bytes1, 0, bytes1.Length);
+            session.Stream.ToPipeStream().Write(bytes3, 0, bytes3.Length);
+            session.Stream.ToPipeStream().Write(bytes2, 0, bytes2.Length);
             session.Stream.Flush();
+            //session.Stream.ToPipeStream().Write(msg);
+            //session.Stream.Flush();
         }
     }
 }

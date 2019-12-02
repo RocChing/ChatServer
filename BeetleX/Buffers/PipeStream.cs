@@ -339,13 +339,13 @@ namespace BeetleX.Buffers
             return false;
         }
 
-        public unsafe int IndexOf(byte[] eof,byte[] data)
+        public unsafe int IndexOf(byte[] eof, byte[] data)
         {
             int matchLength = eof.Length;
             int bufferSize = data.Length;
             int length;
             Span<byte> eofBlock = stackalloc byte[matchLength];
-            for(int i=0;i< matchLength; i++)
+            for (int i = 0; i < matchLength; i++)
             {
                 eofBlock[i] = eof[i];
             }
@@ -353,23 +353,23 @@ namespace BeetleX.Buffers
             if (eof == null || mLength < eof.Length)
                 return count;
             int match = 0;
-            fixed(byte *dest = data)
+            fixed (byte* dest = data)
             {
                 byte* destData = dest;
                 IBuffer rbuffer = GetReadBuffer();
-                while(rbuffer !=null)
+                while (rbuffer != null)
                 {
-                   fixed( byte * source = &rbuffer.Data[rbuffer.Postion])
+                    fixed (byte* source = &rbuffer.Data[rbuffer.Postion])
                     {
                         if (count >= bufferSize)
                             return 0;
                         byte* sourceData = source;
                         length = rbuffer.Length;
-                        for(int i=0;i< length; i++)
+                        for (int i = 0; i < length; i++)
                         {
                             *destData = *sourceData;
                             count++;
-                            if(eofBlock[match]==*sourceData)
+                            if (eofBlock[match] == *sourceData)
                             {
                                 match++;
                             }
@@ -382,7 +382,7 @@ namespace BeetleX.Buffers
                                 return count;
                             }
                             sourceData++;
-                            destData++;                     
+                            destData++;
                         }
                     }
                     rbuffer = GetReadBuffer();
@@ -934,7 +934,6 @@ namespace BeetleX.Buffers
                 offset += len;
                 count -= len;
             }
-
         }
 
         public override void WriteByte(byte value)

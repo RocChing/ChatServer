@@ -54,7 +54,7 @@ namespace ChatServer
 
                    services.AddScoped<IUserRepository, UserRepository>();
 
-                   services.AddSingleton(new ServerOptions() { BufferSize = 1024000 });
+                   services.AddSingleton(new ServerOptions() { BufferSize = 10240 });
                    services.AddSingleton(new MessageManager());
                    services.AddScoped<IServerHandler, ChatTcpServer>();
                })

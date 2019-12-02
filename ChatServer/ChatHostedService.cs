@@ -32,8 +32,43 @@ namespace ChatServer
         public Task StartAsync(CancellationToken cancellationToken)
         {
             Console.WriteLine("服务启动");
+            //byte[] bytes = Encoding.UTF8.GetBytes("N");
+            //foreach (var item in bytes)
+            //{
+            //    Console.WriteLine(item);
+            //}
+            //string info = Encoding.UTF8.GetString(bytes);
+            //Console.WriteLine(info);
+            //byte[] bytes = BitConverter.GetBytes(64);
+            //byte[] bytes = intToBytes(64);
+            //foreach (var item in bytes)
+            //{
+            //    Console.WriteLine(item);
+            //}
+
+            //byte[] bytes = new byte[4] { 0, 0, 0, 154 };
+            //int res = byteArrayToInt2(bytes);
+            //Console.WriteLine($"the res value is:" + res);
             StartChatServer();
             return Task.FromResult(0);
+        }
+
+        public byte[] intToBytes(int value)
+        {
+            byte[] src = new byte[4];
+            src[3] = (byte)((value >> 24) & 0xFF);
+            src[2] = (byte)((value >> 16) & 0xFF);
+            src[1] = (byte)((value >> 8) & 0xFF);
+            src[0] = (byte)(value & 0xFF);
+            return src;
+        }
+
+        public int byteArrayToInt2(byte[] b)
+        {
+            return b[0] & 0xFF |
+                    (b[1] & 0xFF) << 8 |
+                    (b[2] & 0xFF) << 16 |
+                    (b[3] & 0xFF) << 24;
         }
 
         public Task StopAsync(CancellationToken cancellationToken)
